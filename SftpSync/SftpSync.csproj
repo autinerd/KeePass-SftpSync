@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>SftpSync</RootNamespace>
     <AssemblyName>SftpSync</AssemblyName>
-    <TargetFrameworkVersion>v3.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <NoWin32Manifest>False</NoWin32Manifest>
     <SignAssembly>False</SignAssembly>
@@ -23,7 +23,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
-    <DelaySign>False</DelaySign>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -52,20 +52,23 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <LangVersion>4</LangVersion>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <LangVersion>6</LangVersion>
+    <PlatformTarget>anycpu</PlatformTarget>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\..\WORK\PORTABLE_SOFT\KeePass\</OutputPath>
+    <OutputPath>build\bin</OutputPath>
+    <CustomCommands>
+      <CustomCommands>
+        <Command>
+          <type>Build</type>
+          <command>keepass2 --plgx-create ${ProjectDir} --plgx-prereq-kp:2.18 --plgx-prereq-net:3.5 --debug</command>
+        </Command>
+      </CustomCommands>
+    </CustomCommands>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <LangVersion>4</LangVersion>
+    <LangVersion>6</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="KeePass">
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\KeePass Password Safe 2\KeePass.exe</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.CSharp">
-    </Reference>
     <Reference Include="Renci.SshNet, Version=2016.0.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\Renci.SshNet.dll</HintPath>
@@ -77,6 +80,11 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq">
+    </Reference>
+    <Reference Include="KeePass">
+      <HintPath>..\..\..\..\..\usr\lib\keepass2\KeePass.exe</HintPath>
+      <Private>False</Private>
+      <IncludeInPackage>false</IncludeInPackage>
     </Reference>
   </ItemGroup>
   <ItemGroup>

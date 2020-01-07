@@ -19,12 +19,12 @@ namespace SftpSync
     /// </summary>
     public class ScpWebResponse : WebResponse
     {
-        private Stream m_sResponse = null;
+        private Stream m_sResponse;
         private readonly string m_method = String.Empty;
-        private readonly ScpClient m_scpClient = null;
-        private readonly Stream m_sReqStream = null;
+        private readonly ScpClient m_scpClient;
+        private readonly Stream m_sReqStream;
 
-        private long m_lSize = 0;
+        private long m_lSize;
         public override long ContentLength
         {
             get { return m_lSize; }
@@ -105,7 +105,7 @@ namespace SftpSync
             string strTempFile = Path.GetTempFileName();
             File.WriteAllBytes(strTempFile, ((MemoryStream)m_sResponse).ToArray());
 
-            return m_sResponse.Length > 0 ? (Stream)File.Open(strTempFile, FileMode.Open) : (Stream)m_sResponse;
+            return m_sResponse.Length > 0 ? File.Open(strTempFile, FileMode.Open) : m_sResponse;
 
         }
         public override Stream GetResponseStream()

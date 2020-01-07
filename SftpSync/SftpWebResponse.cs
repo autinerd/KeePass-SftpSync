@@ -10,7 +10,6 @@ using System;
 using Renci.SshNet;
 using System.Net;
 using System.IO;
-using System.Diagnostics;
 
 namespace SftpSync
 {
@@ -19,12 +18,12 @@ namespace SftpSync
     /// </summary>
     public class SftpWebResponse : WebResponse
     {
-        private Stream m_sResponse = null;
-        private readonly string m_method = String.Empty;
-        private readonly BaseClient m_sftpClient = null;
-        private readonly Stream m_sReqStream = null;
+        Stream m_sResponse;
+        readonly string m_method = String.Empty;
+        readonly BaseClient m_sftpClient;
+        Stream m_sReqStream;
 
-        private long m_lSize = 0;
+        long m_lSize;
         public override long ContentLength
         {
             get { return m_lSize; }
@@ -37,14 +36,14 @@ namespace SftpSync
             set { throw new InvalidOperationException(); }
         }
 
-        private Uri m_uriResponse;
-        private Uri m_uriMoveTo;
+        Uri m_uriResponse;
+        Uri m_uriMoveTo;
         public override Uri ResponseUri
         {
             get { return m_uriResponse; }
         }
 
-        private WebHeaderCollection m_whc = new WebHeaderCollection();
+        WebHeaderCollection m_whc = new WebHeaderCollection();
         public override WebHeaderCollection Headers
         {
             get { return m_whc; }
@@ -65,11 +64,11 @@ namespace SftpSync
             if (!m_sftpClient.IsConnected) m_sftpClient.Connect();
             m_sReqStream = p_InStream;
             m_uriMoveTo = uriMoveTo;
-            m_whc.Add("ServerInfo", m_sftpClient.ConnectionInfo.ServerVersion.ToString());
+            m_whc.Add("ServerInfo", m_sftpClient.ConnectionInfo.ServerVersion);
             m_sResponse = doAction();
 
         }
-        private Stream doAction()
+        Stream doAction()
         {
             m_sResponse = new MemoryStream();
 
@@ -88,25 +87,27 @@ namespace SftpSync
             else if (m_sReqStream == null && m_method != "POST")
             {
                 if (m_sftpClient.GetType() == typeof(SftpClient))
-                    ((SftpClient)m_sftpClient).DownloadFile(m_uriResponse.LocalPath, m_sResponse);                
-                else                
+                    ((SftpClient)m_sftpClient).DownloadFile(m_uriResponse.LocalPath, m_sResponse);
+                else
                     ((ScpClient)m_sftpClient).Download(m_uriResponse.LocalPath, m_sResponse);
 
-                
+
                 m_lSize = m_sResponse.Length;
 
 
             }
             else if (m_method == "POST")
             {
-                if (m_sReqStream == null) throw new ArgumentNullException("m_sReqStream");
+                Console.WriteLine("ReqStream: " + (m_sReqStream == null ? "null" : m_sReqStream.Length.ToString()));
+                if (m_sReqStream == null) m_sReqStream = new MemoryStream();
                 m_lSize = 0;
                 if (m_sftpClient.GetType() == typeof(SftpClient))
                     ((SftpClient)m_sftpClient).UploadFile(m_sReqStream, m_uriResponse.LocalPath);
                 else
-                    ((ScpClient)m_sftpClient).Upload(m_sReqStream, m_uriResponse.LocalPath);            
+                    ((ScpClient)m_sftpClient).Upload(m_sReqStream, m_uriResponse.LocalPath);
 
-            } else
+            }
+            else
             {
                 throw new Exception("mode not support");
             }
@@ -114,12 +115,11 @@ namespace SftpSync
             string strTempFile = Path.GetTempFileName();
             File.WriteAllBytes(strTempFile, ((MemoryStream)m_sResponse).ToArray());
 
-            return m_sResponse.Length > 0 ? (Stream)File.Open(strTempFile, FileMode.Open) : (Stream)m_sResponse;
+            return m_sResponse.Length > 0 ? File.Open(strTempFile, FileMode.Open) : m_sResponse;
 
         }
         public override Stream GetResponseStream()
         {
-
             return m_sResponse ?? doAction();
         }
         public override void Close()
